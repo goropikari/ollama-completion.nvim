@@ -15,7 +15,7 @@ A lightweight, local-first inline code completion plugin for Neovim. It provides
 - Neovim 0.11+
 - [Ollama](https://ollama.ai/)
 - A code-generation model (e.g., `qwen2.5-coder:3b`)
-  - *Recommendation*: Use models optimized for Fill-In-the-Middle (FIM).
+  - _Recommendation_: Use models optimized for Fill-In-the-Middle (FIM).
 
 ## Installation
 

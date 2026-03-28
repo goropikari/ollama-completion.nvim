@@ -64,9 +64,7 @@ function M.trigger()
   -- Pass prefix and suffix directly to llm.generate
   -- Prompt formatting is handled internally by llm.generate
   llm.generate(prefix, suffix, function(response)
-    vim.schedule(function()
-      M.display(response)
-    end)
+    M.display(response)
   end)
 end
 

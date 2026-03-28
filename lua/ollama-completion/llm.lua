@@ -18,7 +18,7 @@ function M.generate(prefix, suffix, callback)
     current_process = nil
   end
 
-  local url = config.options.url .. '/api/generate'
+  local url = config.options.url:gsub('/$', '') .. '/api/generate'
 
   -- Get the prompt template from configuration (can be string or function)
   local prompt_template_config = config.options.prompt_template
@@ -58,25 +58,31 @@ function M.generate(prefix, suffix, callback)
 
   -- Start asynchronous process using vim.system
   current_process = vim.system(cmd, { text = true }, function(obj)
-    current_process = nil
-    if obj.code ~= 0 then
-      vim.notify('Ollama error: ' .. (obj.stderr or 'unknown error'), vim.log.levels.ERROR)
-      return
-    end
-    if not obj.stdout or obj.stdout == '' then
-      return
-    end
+    vim.schedule(function()
+      current_process = nil
+      if obj.code ~= 0 then
+        local error_msg = string.format('Ollama error (code %d)', obj.code)
+        if obj.stderr and obj.stderr ~= '' then
+          error_msg = error_msg .. ': ' .. obj.stderr
+        end
+        vim.notify(error_msg, vim.log.levels.ERROR)
+        return
+      end
+      if not obj.stdout or obj.stdout == '' then
+        return
+      end
 
-    local decoded = vim.json.decode(obj.stdout)
-    if not decoded.response then
-      vim.notify('Ollama response missing: ' .. obj.stdout, vim.log.levels.ERROR)
-      return
-    end
+      local decoded = vim.json.decode(obj.stdout)
+      if not decoded.response then
+        vim.notify('Ollama response missing: ' .. obj.stdout, vim.log.levels.ERROR)
+        return
+      end
 
-    local resp = decoded.response
-    -- Basic code block extraction from the LLM response
-    local code = resp:match('```[%w]*\n?(.-)```') or resp
-    callback(code)
+      local resp = decoded.response
+      -- Basic code block extraction from the LLM response
+      local code = resp:match('```[%w]*\n?(.-)```') or resp
+      callback(code)
+    end)
   end)
 end
 
