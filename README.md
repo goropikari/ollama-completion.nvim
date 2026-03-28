@@ -7,7 +7,7 @@ Inline code completion plugin for Neovim. Provides real-time code completion usi
 - **Local execution**: Uses Ollama, no external API keys required
 - **Inline completion**: Displays suggested code in light blue at cursor position
 - **Context-aware**: Sends code before and after cursor to generate contextually relevant completions
-- **Customizable**: Configure completion trigger, context lines, model, and more
+- **Customizable**: Configure completion trigger, context lines, model, prompt template, and more
 
 ## Requirements
 
@@ -45,10 +45,29 @@ Configure via lazy.nvim's `opts`. The `setup()` function is called automatically
     context_lines_before = 50,      -- Lines before cursor to send as context
     context_lines_after = 50,       -- Lines after cursor to send as context
     highlight_color = '#808080',    -- Completion text color
+
+    -- LLM specific options
     options = {
       temperature = 0.2,            -- Generation randomness
       top_p = 0.9,                  -- Top sampling
+      stop = {                      -- Tokens that stop generation
+        '<|fim_prefix|>',
+        '<|fim_suffix|>',
+        '<|fim_middle|>',
+        '<|file_sep|>',
+        '<|endoftext|>',
+        '```',
+      },
+      num_predict = 128,            -- Maximum number of tokens to predict. Default: 128.
     },
+
+    -- Prompt template for LLM. Can be a string or a function.
+    -- If string, uses Lua string.format syntax (%s for prefix, %s for suffix).
+    -- If function, it's called with prefix and suffix.
+    -- Default: FIM format for Qwen model
+    prompt_template = function(prefix, suffix)
+      return string.format('<|fim_prefix|>%s<|fim_suffix|>%s<|fim_middle|>', prefix, suffix)
+    end,
   },
 }
 ```

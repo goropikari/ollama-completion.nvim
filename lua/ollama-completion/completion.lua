@@ -56,10 +56,9 @@ function M.trigger()
   M.clear()
   local prefix, suffix = M.get_context()
 
-  -- Use Qwen/Llama3/CodeLlama style FIM tokens
-  local prompt = string.format('<|fim_prefix|>%s<|fim_suffix|>%s<|fim_middle|>', prefix, suffix)
-
-  llm.generate(prompt, function(response)
+  -- Pass prefix and suffix directly to llm.generate
+  -- Prompt formatting is handled internally by llm.generate
+  llm.generate(prefix, suffix, function(response)
     vim.schedule(function()
       M.display(response)
     end)

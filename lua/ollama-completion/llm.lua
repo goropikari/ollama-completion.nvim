@@ -6,9 +6,10 @@ local M = {}
 local current_process = nil
 
 --- Call Ollama API to generate completion
----@param prompt string
+---@param prefix string
+---@param suffix string
 ---@param callback fun(response: string)
-function M.generate(prompt, callback)
+function M.generate(prefix, suffix, callback)
   -- Cancel previous process if it exists
   if current_process then
     current_process:kill()
@@ -16,11 +17,28 @@ function M.generate(prompt, callback)
   end
 
   local url = config.options.url .. '/api/generate'
+
+  -- Get the prompt template from configuration (can be string or function)
+  local prompt_template_config = config.options.prompt_template
+
+  local final_prompt
+  if type(prompt_template_config) == 'function' then
+    -- If it's a function, call it with prefix and suffix
+    final_prompt = prompt_template_config(prefix, suffix)
+  elseif type(prompt_template_config) == 'string' then
+    -- If it's a string, use string.format
+    final_prompt = string.format(prompt_template_config, prefix, suffix)
+  else
+    -- Fallback to a default FIM format if type is unexpected or not set
+    vim.notify('Warning: Invalid prompt_template type in config, using default FIM format.', vim.log.levels.WARN)
+    final_prompt = string.format('<|fim_prefix|>%s<|fim_suffix|>%s<|fim_middle|>', prefix, suffix)
+  end
+
   local data = {
     model = config.options.model,
-    prompt = prompt,
+    prompt = final_prompt, -- Use the generated prompt
     stream = false,
-    raw = true,
+    raw = true, -- Keep raw = true for FIM
     options = config.options.options,
   }
 
