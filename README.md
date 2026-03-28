@@ -48,7 +48,7 @@ Configure via lazy.nvim's `opts`. The `setup()` function is called automatically
 
     -- LLM specific options
     options = {
-      temperature = 0.2,            -- Generation randomness
+      temperature = 0.0,            -- Generation randomness
       top_p = 0.9,                  -- Top sampling
       stop = {                      -- Tokens that stop generation
         '<|fim_prefix|>',
@@ -58,7 +58,7 @@ Configure via lazy.nvim's `opts`. The `setup()` function is called automatically
         '<|endoftext|>',
         '```',
       },
-      num_predict = 128,            -- Maximum number of tokens to predict. Default: 128.
+      num_predict = 64,            -- Maximum number of tokens to predict. Default: 128.
     },
 
     -- Prompt template for LLM. Can be a string or a function.

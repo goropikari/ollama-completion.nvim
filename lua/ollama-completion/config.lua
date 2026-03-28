@@ -29,7 +29,7 @@ M.defaults = {
   context_lines_after = 50, -- Lines of context after cursor
   highlight_color = '#808080', -- Color for virtual text
   options = {
-    temperature = 0.2, -- LLM temperature
+    temperature = 0.0, -- LLM temperature
     top_p = 0.9, -- LLM top_p
     stop = {
       '<|fim_prefix|>',
@@ -39,7 +39,7 @@ M.defaults = {
       '<|endoftext|>',
       '```',
     },
-    num_predict = 128, -- Maximum number of tokens to predict. Default: 128.
+    num_predict = 64, -- Maximum number of tokens to predict. Default: 128.
   },
   -- prompt template
   prompt_template = function(prefix, suffix)
