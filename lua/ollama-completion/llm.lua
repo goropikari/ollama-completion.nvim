@@ -1,14 +1,16 @@
 local config = require('ollama-completion.config')
 
+---@class OllamaLLM
 local M = {}
 
--- Store current active process to cancel it if a new one starts
+--- Store current active process to cancel it if a new one starts
+---@type vim.SystemObj|nil
 local current_process = nil
 
 --- Call Ollama API to generate completion
----@param prefix string
----@param suffix string
----@param callback fun(response: string)
+---@param prefix string The text before the cursor
+---@param suffix string The text after the cursor
+---@param callback fun(response: string) The function to call with the generated code
 function M.generate(prefix, suffix, callback)
   -- Cancel previous process if it exists
   if current_process then

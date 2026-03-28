@@ -2,13 +2,18 @@ local llm = require('ollama-completion.llm')
 local config = require('ollama-completion.config')
 
 local uv = vim.uv
+
+---@class OllamaCompletion
 local M = {}
 
--- Namespace for virtual text
+--- Namespace for virtual text
+---@type integer
 local ns_id = vim.api.nvim_create_namespace('ollama_completion')
--- Store current completion content
+--- Store current completion content
+---@type string
 local current_completion = ''
--- Debounce timer
+--- Debounce timer
+---@type uv.uv_timer_t|nil
 local timer = nil
 
 --- Clear current completion and virtual text
@@ -66,7 +71,7 @@ function M.trigger()
 end
 
 --- Display the completion response as virtual text
----@param completion string
+---@param completion string The text to display as virtual text
 function M.display(completion)
   local mode = vim.api.nvim_get_mode().mode
   -- Only display in insert mode
@@ -97,7 +102,7 @@ function M.display(completion)
 end
 
 --- Accept the current completion and insert it into the buffer
----@return boolean success
+---@return boolean success True if completion was accepted, false otherwise
 function M.accept()
   if current_completion == '' then
     return false

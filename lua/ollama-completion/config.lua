@@ -1,3 +1,4 @@
+---@class OllamaConfig
 local M = {}
 
 ---@class OllamaLLMOptions
@@ -17,6 +18,7 @@ local M = {}
 ---@field context_lines_after? number Lines of context after cursor
 ---@field highlight_color? string Color for virtual text
 ---@field options? OllamaLLMOptions LLM specific options like temperature, top_p, stop, num_predict
+---@field prompt_template? string | fun(prefix: string, suffix: string): string Template for constructing the prompt.
 
 --- Default configuration options
 ---@type OllamaCompletionOptions

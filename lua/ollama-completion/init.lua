@@ -1,6 +1,7 @@
 local config = require('ollama-completion.config')
 local completion = require('ollama-completion.completion')
 
+---@class OllamaCompletionPlugin
 local M = {}
 
 --- Initialize the plugin
