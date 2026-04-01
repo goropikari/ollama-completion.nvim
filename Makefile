@@ -5,7 +5,7 @@ fmt:
 
 .PHONY: lint
 lint:
-	typos -w
+	typos
 
 .PHONY: check
 check: lint fmt

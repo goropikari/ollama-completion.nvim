@@ -17,6 +17,7 @@ local M = {}
 ---@field context_lines_before? number Lines of context before cursor
 ---@field context_lines_after? number Lines of context after cursor
 ---@field highlight_color? string Color for virtual text
+---@field show_spinner? boolean Whether to show spinner in ghost text while waiting for completion
 ---@field options? OllamaLLMOptions LLM specific options like temperature, top_p, stop, num_predict
 ---@field prompt_template? string | fun(prefix: string, suffix: string): string Template for constructing the prompt.
 
@@ -30,6 +31,7 @@ M.defaults = {
   context_lines_before = 50, -- Lines of context before cursor
   context_lines_after = 50, -- Lines of context after cursor
   highlight_color = '#808080', -- Color for virtual text
+  show_spinner = true, -- Whether to show spinner in ghost text
   options = {
     temperature = 0.0, -- LLM temperature
     top_p = 0.9, -- LLM top_p

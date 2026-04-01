@@ -15,6 +15,18 @@ local current_completion = ''
 --- Debounce timer
 ---@type uv.uv_timer_t|nil
 local timer = nil
+--- Spinner animation timer
+---@type uv.uv_timer_t|nil
+local spinner_timer = nil
+--- Spinner frames
+---@type string[]
+local spinner_frames = { '⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷' }
+--- Current spinner frame index
+---@type integer
+local spinner_index = 1
+--- Whether spinner is currently showing
+---@type boolean
+local is_spinning = false
 
 --- Clear current completion and virtual text
 function M.clear()
@@ -23,8 +35,53 @@ function M.clear()
     timer:close()
     timer = nil
   end
+  if spinner_timer then
+    spinner_timer:stop()
+    spinner_timer:close()
+    spinner_timer = nil
+  end
+  is_spinning = false
   vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
   current_completion = ''
+end
+
+--- Start spinner animation
+function M.start_spinner()
+  if not config.options.show_spinner then
+    return
+  end
+  M.stop_spinner()
+  is_spinning = true
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  local row = cursor_pos[1] - 1
+  local col = cursor_pos[2]
+
+  spinner_timer = uv.new_timer()
+  spinner_timer:start(
+    0,
+    80,
+    vim.schedule_wrap(function()
+      if not is_spinning then
+        return
+      end
+      local spinner = spinner_frames[spinner_index]
+      vim.api.nvim_buf_set_extmark(0, ns_id, row, col, {
+        virt_text = { { spinner, 'OllamaCompletion' } },
+        virt_text_pos = 'inline',
+      })
+      spinner_index = (spinner_index % #spinner_frames) + 1
+    end)
+  )
+end
+
+--- Stop spinner animation
+function M.stop_spinner()
+  if spinner_timer then
+    spinner_timer:stop()
+    spinner_timer:close()
+    spinner_timer = nil
+  end
+  is_spinning = false
 end
 
 --- Get prefix and suffix around the cursor for LLM context
@@ -61,9 +118,13 @@ function M.trigger()
   M.clear()
   local prefix, suffix = M.get_context()
 
+  -- Start spinner immediately
+  M.start_spinner()
+
   -- Pass prefix and suffix directly to llm.generate
   -- Prompt formatting is handled internally by llm.generate
   llm.generate(prefix, suffix, function(response)
+    M.stop_spinner()
     M.display(response)
   end)
 end

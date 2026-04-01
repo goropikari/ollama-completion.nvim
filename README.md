@@ -8,6 +8,7 @@ A lightweight, local-first inline code completion plugin for Neovim. It provides
 - **Context-Aware**: Utilizes code both before and after the cursor for smarter, Fill-In-the-Middle (FIM) completions.
 - **Async & Fast**: Non-blocking requests using `vim.system` for a smooth typing experience.
 - **Debounced Triggering**: Configurable delays to avoid excessive LLM calls while typing.
+- **Spinner Animation**: Visual feedback with an animated spinner while waiting for completions.
 - **Fully Typed**: LuaLS (Lua Language Server) annotations for full configuration autocompletion and type safety.
 
 ## Requirements
@@ -35,7 +36,7 @@ A lightweight, local-first inline code completion plugin for Neovim. It provides
 
 The plugin uses sensible defaults, but you can override any setting via `opts`. The `setup()` function is automatically called by lazy.nvim.
 
-```lua
+````lua
 {
   'goropikari/ollama-completion.nvim',
   opts = {
@@ -46,6 +47,7 @@ The plugin uses sensible defaults, but you can override any setting via `opts`. 
     context_lines_before = 50,      -- Number of lines before cursor for context
     context_lines_after = 50,       -- Number of lines after cursor for context
     highlight_color = '#808080',    -- HEX color for virtual text (e.g., '#808080')
+    show_spinner = true,            -- Show animated spinner while waiting for completion
 
     -- Advanced Ollama/LLM options
     options = {
@@ -68,7 +70,7 @@ The plugin uses sensible defaults, but you can override any setting via `opts`. 
     end,
   },
 }
-```
+````
 
 ## Usage
 
