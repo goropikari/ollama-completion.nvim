@@ -120,6 +120,18 @@ end
 
 --- Trigger LLM generation for completion
 function M.trigger()
+  -- Only trigger completion if next character is whitespace
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  local row = cursor_pos[1]
+  local col = cursor_pos[2]
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local current_line = lines[row] or ''
+  local next_char = string.sub(current_line, col + 1, col + 1)
+
+  if next_char ~= '' and not string.match(next_char, '^%s$') then
+    return
+  end
+
   M.clear()
   local prefix, suffix = M.get_context()
 
