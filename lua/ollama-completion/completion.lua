@@ -27,6 +27,9 @@ local spinner_index = 1
 --- Whether spinner is currently showing
 ---@type boolean
 local is_spinning = false
+--- Current spinner extmark ID
+---@type integer?
+local spinner_extmark_id = nil
 
 --- Clear current completion and virtual text
 function M.clear()
@@ -65,9 +68,10 @@ function M.start_spinner()
         return
       end
       local spinner = spinner_frames[spinner_index]
-      vim.api.nvim_buf_set_extmark(0, ns_id, row, col, {
+      spinner_extmark_id = vim.api.nvim_buf_set_extmark(0, ns_id, row, col, {
         virt_text = { { spinner, 'OllamaCompletion' } },
         virt_text_pos = 'inline',
+        id = spinner_extmark_id,
       })
       spinner_index = (spinner_index % #spinner_frames) + 1
     end)
@@ -82,6 +86,7 @@ function M.stop_spinner()
     spinner_timer = nil
   end
   is_spinning = false
+  spinner_extmark_id = nil
 end
 
 --- Get prefix and suffix around the cursor for LLM context
