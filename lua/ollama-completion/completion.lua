@@ -119,7 +119,13 @@ function M.get_context()
 end
 
 --- Trigger LLM generation for completion
-function M.trigger()
+---@param force? boolean Skip cursor-based trigger guards when true
+function M.trigger(force)
+  if llm.is_suspended() then
+    M.clear()
+    return
+  end
+
   -- Only trigger completion if next character is whitespace
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   local row = cursor_pos[1]
@@ -128,7 +134,7 @@ function M.trigger()
   local current_line = lines[row] or ''
   local next_char = string.sub(current_line, col + 1, col + 1)
 
-  if next_char ~= '' and not string.match(next_char, '^%s$') then
+  if not force and next_char ~= '' and not string.match(next_char, '^%s$') then
     return
   end
 

@@ -9,6 +9,7 @@ A lightweight, local-first inline code completion plugin for Neovim. It provides
 - **Async & Fast**: Non-blocking requests using `vim.system` for a smooth typing experience.
 - **Debounced Triggering**: Configurable delays to avoid excessive LLM calls while typing.
 - **Spinner Animation**: Visual feedback with an animated spinner while waiting for completions.
+- **Manual Recovery**: Stops automatic retries after a connection failure until you explicitly reconnect.
 - **Fully Typed**: LuaLS (Lua Language Server) annotations for full configuration autocompletion and type safety.
 
 ## Requirements
@@ -78,3 +79,44 @@ The plugin uses sensible defaults, but you can override any setting via `opts`. 
 2. **Visual**: The suggestion is displayed as "virtual text" (ghost text) after the cursor.
 3. **Accept**: Press your configured `accept_key` (default: `<Tab>`) to insert the suggestion into your buffer.
 4. **Reject**: Continue typing or leave Insert Mode to clear the current suggestion.
+5. **Reconnect**: If Ollama is unreachable, automatic requests pause after the first failed attempt. Run `:OllamaCompletionReconnect` to allow another connection attempt.
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| `:OllamaCompletionReconnect` | Resume requests after a connection failure and immediately try one new completion request. |
+
+## Lua API
+
+### Public API
+
+| Expression | Signature | Description |
+| --- | --- | --- |
+| `require('ollama-completion').setup` | `setup(opts?: OllamaCompletionOptions)` | Configure the plugin, register autocommands, define highlights, keymaps, and user commands. |
+
+### Options Type
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `model` | `string` | Ollama model name. |
+| `url` | `string` | Ollama API endpoint. |
+| `accept_key` | `string` | Key used to accept the current suggestion. |
+| `debounce_ms` | `number` | Delay before sending a completion request. |
+| `context_lines_before` | `number` | Number of context lines collected before the cursor. |
+| `context_lines_after` | `number` | Number of context lines collected after the cursor. |
+| `highlight_color` | `string` | Highlight color for ghost text. |
+| `show_spinner` | `boolean` | Show spinner while waiting for a response. |
+| `options` | `OllamaLLMOptions` | Request options passed to Ollama. |
+| `prompt_template` | `string \| fun(prefix: string, suffix: string): string` | Prompt template or prompt builder function. |
+
+### `OllamaLLMOptions`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `temperature` | `number` | Sampling temperature. |
+| `top_p` | `number` | Top-p sampling value. |
+| `stop` | `string[]` | Stop tokens. |
+| `num_predict` | `integer` | Maximum number of tokens to generate. |
+| `prompt_template` | `string \| fun(prefix: string, suffix: string): string` | Deprecated in this nested table; use top-level `prompt_template`. |
+| `filetype_context` | `boolean` | Deprecated legacy option. |

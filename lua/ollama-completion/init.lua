@@ -1,5 +1,6 @@
 local config = require('ollama-completion.config')
 local completion = require('ollama-completion.completion')
+local llm = require('ollama-completion.llm')
 
 ---@class OllamaCompletionPlugin
 local M = {}
@@ -28,6 +29,13 @@ function M.setup(opts)
   end
 
   vim.keymap.set('i', accept_key, accept_completion, { silent = true, desc = 'Accept Ollama completion' })
+
+  vim.api.nvim_create_user_command('OllamaCompletionReconnect', function()
+    llm.resume()
+    completion.trigger(true)
+  end, {
+    desc = 'Resume Ollama completion requests and trigger a new connection attempt',
+  })
 end
 
 return M

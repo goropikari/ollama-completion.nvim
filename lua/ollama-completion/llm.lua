@@ -6,12 +6,30 @@ local M = {}
 --- Store current active process to cancel it if a new one starts
 ---@type vim.SystemObj|nil
 local current_process = nil
+--- Disable automatic requests after a connection failure until manually resumed
+---@type boolean
+local is_connection_suspended = false
+
+--- Return whether automatic Ollama requests are currently suspended
+---@return boolean
+function M.is_suspended()
+  return is_connection_suspended
+end
+
+--- Resume Ollama requests after a connection failure
+function M.resume()
+  is_connection_suspended = false
+end
 
 --- Call Ollama API to generate completion
 ---@param prefix string The text before the cursor
 ---@param suffix string The text after the cursor
 ---@param callback fun(response: string) The function to call with the generated code
 function M.generate(prefix, suffix, callback)
+  if is_connection_suspended then
+    return
+  end
+
   -- Cancel previous process if it exists
   if current_process then
     current_process:kill()
@@ -61,11 +79,12 @@ function M.generate(prefix, suffix, callback)
     vim.schedule(function()
       current_process = nil
       if obj.code ~= 0 then
+        is_connection_suspended = true
         local error_msg = string.format('Ollama error (code %d)', obj.code)
         if obj.stderr and obj.stderr ~= '' then
           error_msg = error_msg .. ': ' .. obj.stderr
         end
-        vim.notify(error_msg, vim.log.levels.ERROR)
+        vim.notify(error_msg .. '. Automatic requests are paused. Run :OllamaCompletionReconnect to try again.', vim.log.levels.ERROR)
         return
       end
       if not obj.stdout or obj.stdout == '' then
